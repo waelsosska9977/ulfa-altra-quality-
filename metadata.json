@@ -1,0 +1,6 @@
+{
+  "name": "Ultra Alpha Quant - الماسح الكمي ومولد الاستراتيجيات",
+  "description": "Automated Quantitative Trading Strategy Generator, Multi-Indicator Confluence Scanner & Vectorized Backtester with In-Sample/Out-of-Sample verification and realistic fees.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

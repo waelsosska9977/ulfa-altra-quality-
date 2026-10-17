@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, CheckCircle2, XCircle, ArrowUpRight, ArrowDownRight, Shield, Target, Code, Copy, Check, Cpu, AlertTriangle, Crosshair, Zap, Layers, AlertCircle } from 'lucide-react';
 import { SignalAnalysis } from '../types/quant';
 import { Language, translations } from '../i18n/translations';
+import { BINANCE_COINS_CATALOG } from '../lib/binanceApi';
 
 interface ConfluenceModalProps {
   signal: SignalAnalysis | null;
@@ -55,7 +56,7 @@ export const ConfluenceModal: React.FC<ConfluenceModalProps> = ({
         {/* Header */}
         <div className="flex items-start justify-between pb-3 border-b border-slate-800">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className="text-xl font-bold font-mono tracking-tight text-white">
                 {signal.symbol}
               </span>
@@ -80,6 +81,20 @@ export const ConfluenceModal: React.FC<ConfluenceModalProps> = ({
                 {isChasingDisqualified ? t.chasingDisqualified : t.activeLimitOrder}
               </span>
             </div>
+
+            {(() => {
+              const catalogItem = BINANCE_COINS_CATALOG.find(c => c.symbol === signal.symbol || c.baseAsset === signal.symbol);
+              return catalogItem ? (
+                <div className="text-xs font-semibold text-slate-300 mt-1 flex items-center gap-2">
+                  <span>{catalogItem.name}</span>
+                  {catalogItem.category === 'BSTOCK' && (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold">
+                      🏛️ Binance bStocks
+                    </span>
+                  )}
+                </div>
+              ) : null;
+            })()}
 
             <p className="text-xs text-slate-400 mt-1">
               {t.precisionExecutionSubtitle}

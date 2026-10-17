@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Sliders, Shield, AlertTriangle, CheckCircle, BarChart3, TrendingUp, Info } from 'lucide-react';
+import { Play, Sliders, Shield, AlertTriangle, CheckCircle, BarChart3, TrendingUp, Info, ShieldCheck, ExternalLink, HelpCircle } from 'lucide-react';
 import { Candle, BacktestConfig, BacktestResult } from '../types/quant';
 import { ChartViewer } from './ChartViewer';
 import { EquityChart } from './EquityChart';
@@ -14,6 +14,7 @@ interface BacktesterViewProps {
   onRunBacktest: () => void;
   isRunning: boolean;
   lang: Language;
+  onOpenGuide: () => void;
 }
 
 export const BacktesterView: React.FC<BacktesterViewProps> = ({
@@ -24,6 +25,7 @@ export const BacktesterView: React.FC<BacktesterViewProps> = ({
   onRunBacktest,
   isRunning,
   lang,
+  onOpenGuide,
 }) => {
   const t = translations[lang];
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -49,7 +51,16 @@ export const BacktesterView: React.FC<BacktesterViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onOpenGuide}
+              className="px-3.5 py-2 text-xs font-semibold text-emerald-300 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+              title={lang === 'ar' ? 'دليل اختبار الاستراتيجية قبل المال الحقيقي' : 'Strategy testing roadmap before real money'}
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>{t.testingGuideBtn}</span>
+            </button>
+
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="px-3 py-2 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors flex items-center gap-1.5"
@@ -67,6 +78,41 @@ export const BacktesterView: React.FC<BacktesterViewProps> = ({
               <span>{isRunning ? t.backtestRunning : t.runBacktestBtn}</span>
             </button>
           </div>
+        </div>
+
+        {/* 4-Stage Testing Roadmap Quick Strip */}
+        <div className="p-3 rounded-lg bg-[#080d1a] border border-slate-800/90 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-bold text-slate-200">
+              {lang === 'ar' ? 'خطة الاختبار الآمن قبل المخاطرة:' : 'Safe Pre-Live Testing Sequence:'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto text-[11px] font-mono text-slate-400">
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              ① {lang === 'ar' ? 'باك تيست 70/30' : 'Web Backtest'}
+            </span>
+            <span className="text-slate-600">→</span>
+            <span className="text-cyan-400 font-semibold flex items-center gap-1">
+              ② {lang === 'ar' ? 'بايثون Vectorbt' : 'Python Vectorbt'}
+            </span>
+            <span className="text-slate-600">→</span>
+            <span className="text-amber-400 font-semibold flex items-center gap-1">
+              ③ {lang === 'ar' ? 'بينانس Testnet (مجاني)' : 'Binance Testnet'}
+            </span>
+            <span className="text-slate-600">→</span>
+            <span className="text-purple-400 font-semibold flex items-center gap-1">
+              ④ {lang === 'ar' ? 'حساب حقيقي 10$ فقط' : 'Micro-Live $10'}
+            </span>
+          </div>
+
+          <button
+            onClick={onOpenGuide}
+            className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-medium shrink-0 flex items-center gap-1"
+          >
+            <span>{lang === 'ar' ? 'عرض تفاصيل المراحل والقائمة' : 'View full guide & checklist'}</span>
+          </button>
         </div>
 
         {/* Quick Strategy Presets */}
@@ -98,13 +144,51 @@ export const BacktesterView: React.FC<BacktesterViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-3 border-t border-slate-800/80">
           {/* Symbol */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-400 mb-1">{t.symbol}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-medium text-slate-400">{t.symbol}</label>
+              <span className="text-[10px] text-indigo-400 font-mono">bStocks Ready</span>
+            </div>
             <input
               type="text"
               value={config.symbol}
               onChange={(e) => setConfig((prev) => ({ ...prev, symbol: e.target.value.toUpperCase() }))}
+              placeholder="e.g. BBBUSDT, MDBBUSDT, BTCUSDT"
               className="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-white uppercase focus:outline-none focus:border-emerald-500"
             />
+            <div className="flex items-center gap-1 mt-1.5 overflow-x-auto text-[10px] font-mono">
+              <span className="text-slate-500 shrink-0">bStocks:</span>
+              {['BBBUSDT', 'MDBBUSDT', 'PENGBUSDT', 'NVDBUSD', 'TSLABUSD', 'JPMBUSDT'].map((sym) => (
+                <button
+                  key={sym}
+                  type="button"
+                  onClick={() => setConfig((prev) => ({ ...prev, symbol: sym }))}
+                  className={`px-1.5 py-0.5 rounded transition-colors shrink-0 ${
+                    config.symbol === sym
+                      ? 'bg-indigo-600 text-white font-bold'
+                      : 'bg-slate-800 text-indigo-300 hover:text-white'
+                  }`}
+                >
+                  {sym.replace('USDT', '').replace('BUSD', '')}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1 mt-1 overflow-x-auto text-[10px] font-mono">
+              <span className="text-slate-500 shrink-0">Futures:</span>
+              {['BTCUSDT', 'ETHUSDT', 'SOLUSDT', '1000PEPEUSDT', 'DOGEUSDT', 'SUIUSDT', 'TAOUSDT', 'PNUTUSDT'].map((sym) => (
+                <button
+                  key={sym}
+                  type="button"
+                  onClick={() => setConfig((prev) => ({ ...prev, symbol: sym }))}
+                  className={`px-1.5 py-0.5 rounded transition-colors shrink-0 ${
+                    config.symbol === sym
+                      ? 'bg-emerald-600 text-white font-bold'
+                      : 'bg-slate-800 text-emerald-300 hover:text-white'
+                  }`}
+                >
+                  {sym.replace('USDT', '')}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Timeframe */}
